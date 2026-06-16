@@ -3,6 +3,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Header from '@/components/Header';
 
+export const dynamic = 'force-dynamic';
+
 type Spot = {
   id: string;
   title: string;
