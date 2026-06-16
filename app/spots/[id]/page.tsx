@@ -6,6 +6,7 @@ import { cookies } from 'next/headers';
 import { createClient } from '@supabase/supabase-js';
 import CommentSection from './CommentSection';
 import Header from '@/components/Header';
+import ReactionBar from '@/components/ReactionBar';
 
 type Props = {
   params: Promise<{ id: string }>;
@@ -80,6 +81,7 @@ export default async function SpotDetailPage({ params }: Props) {
             <p className="text-xs text-gray-400 mt-4">
               {new Date(spot.created_at).toLocaleDateString('ja-JP')}
             </p>
+            <ReactionBar spotId={spot.id} />
           </div>
         </div>
 

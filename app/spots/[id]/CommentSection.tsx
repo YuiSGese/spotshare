@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
+import ReactionBar from '@/components/ReactionBar';
 
 type Comment = {
   id: string;
@@ -76,6 +77,7 @@ export default function CommentSection({ spotId, comments, currentUserEmail }: P
                 </span>
               </div>
               <p className="text-sm text-gray-700 whitespace-pre-wrap">{comment.content}</p>
+              <ReactionBar commentId={comment.id} />
             </div>
           ))
         )}
