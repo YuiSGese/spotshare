@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
+import Link from 'next/link';
 import Header from '@/components/Header';
 
 type Spot = {
@@ -43,9 +44,10 @@ export default async function Home() {
         {spots && spots.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {spots.map((spot: Spot) => (
-              <div
+              <Link
                 key={spot.id}
-                className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300"
+                href={`/spots/${spot.id}`}
+                className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 block"
               >
                 {spot.image_url ? (
                   <div className="relative h-52 w-full">
@@ -69,7 +71,7 @@ export default async function Home() {
                     {new Date(spot.created_at).toLocaleDateString('ja-JP')}
                   </p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         ) : (
