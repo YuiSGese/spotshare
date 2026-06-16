@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import ReactionBar from '@/components/ReactionBar';
@@ -15,14 +15,24 @@ type Comment = {
 type Props = {
   spotId: string;
   comments: Comment[];
-  currentUserEmail: string | null;
 };
 
-export default function CommentSection({ spotId, comments, currentUserEmail }: Props) {
+export default function CommentSection({ spotId, comments }: Props) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setIsLoggedIn(!!session);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,10 +42,7 @@ export default function CommentSection({ spotId, comments, currentUserEmail }: P
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        router.push('/login');
-        return;
-      }
+      if (!session) { router.push('/login'); return; }
 
       const { error } = await supabase.from('comments').insert({
         spot_id: spotId,
@@ -84,7 +91,7 @@ export default function CommentSection({ spotId, comments, currentUserEmail }: P
       </div>
 
       {/* コメントフォーム */}
-      {currentUserEmail ? (
+      {isLoggedIn === null ? null : isLoggedIn ? (
         <form onSubmit={handleSubmit} className="bg-white rounded-xl p-4 shadow-sm">
           <textarea
             value={content}
@@ -93,9 +100,7 @@ export default function CommentSection({ spotId, comments, currentUserEmail }: P
             placeholder="コメントを入力..."
             className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
           />
-          {error && (
-            <p className="text-red-500 text-xs mt-2">{error}</p>
-          )}
+          {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
           <div className="flex justify-end mt-3">
             <button
               type="submit"
