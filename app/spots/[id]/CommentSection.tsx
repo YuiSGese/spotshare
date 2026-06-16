@@ -25,12 +25,8 @@ export default function CommentSection({ spotId, comments }: Props) {
   const router = useRouter();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsLoggedIn(!!session);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      setIsLoggedIn(!!session);
-    });
+    supabase.auth.getSession().then(({ data: { session } }) => setIsLoggedIn(!!session));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => setIsLoggedIn(!!session));
     return () => subscription.unsubscribe();
   }, []);
 
@@ -39,18 +35,12 @@ export default function CommentSection({ spotId, comments }: Props) {
     if (!content.trim()) return;
     setError('');
     setLoading(true);
-
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { router.push('/login'); return; }
-
       const { error } = await supabase.from('comments').insert({
-        spot_id: spotId,
-        user_id: session.user.id,
-        user_email: session.user.email,
-        content: content.trim(),
+        spot_id: spotId, user_id: session.user.id, user_email: session.user.email, content: content.trim(),
       });
-
       if (error) throw error;
       setContent('');
       router.refresh();
@@ -62,59 +52,53 @@ export default function CommentSection({ spotId, comments }: Props) {
   };
 
   return (
-    <div className="mt-10">
-      <h2 className="text-lg font-bold text-gray-800 mb-4">
-        コメント <span className="text-indigo-500 font-normal text-base">({comments.length}件)</span>
-      </h2>
+    <div className="mt-8">
+      <div className="flex items-center gap-3 mb-5">
+        <h2 className="text-sm font-semibold tracking-widest text-zinc-500 uppercase">Comments</h2>
+        <div className="h-px flex-1 bg-zinc-800" />
+        <span className="text-sm text-zinc-700">{comments.length}件</span>
+      </div>
 
-      {/* コメント一覧 */}
-      <div className="space-y-3 mb-6">
+      <div className="space-y-3 mb-5">
         {comments.length === 0 ? (
-          <p className="text-gray-400 text-sm py-4 text-center">まだコメントがありません。最初のコメントを書いてみましょう！</p>
+          <p className="text-zinc-700 text-sm py-6 text-center">まだコメントがありません</p>
         ) : (
           comments.map((comment) => (
-            <div key={comment.id} className="bg-white rounded-xl p-4 shadow-sm">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-sm font-medium text-indigo-600">{comment.user_email}</span>
-                <span className="text-xs text-gray-400">
-                  {new Date(comment.created_at).toLocaleString('ja-JP', {
-                    month: 'numeric', day: 'numeric',
-                    hour: '2-digit', minute: '2-digit',
-                  })}
+            <div key={comment.id} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-sm font-medium text-violet-400">{comment.user_email}</span>
+                <span className="text-xs text-zinc-700">
+                  {new Date(comment.created_at).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
-              <p className="text-sm text-gray-700 whitespace-pre-wrap">{comment.content}</p>
+              <p className="text-sm text-zinc-300 whitespace-pre-wrap">{comment.content}</p>
               <ReactionBar commentId={comment.id} />
             </div>
           ))
         )}
       </div>
 
-      {/* コメントフォーム */}
       {isLoggedIn === null ? null : isLoggedIn ? (
-        <form onSubmit={handleSubmit} className="bg-white rounded-xl p-4 shadow-sm">
+        <form onSubmit={handleSubmit} className="bg-zinc-900 border border-zinc-800 rounded-xl p-4">
           <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            rows={3}
+            value={content} onChange={(e) => setContent(e.target.value)} rows={3}
             placeholder="コメントを入力..."
-            className="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none"
+            className="w-full bg-zinc-800 border border-zinc-700 text-white rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none placeholder:text-zinc-600"
           />
-          {error && <p className="text-red-500 text-xs mt-2">{error}</p>}
+          {error && <p className="text-red-400 text-xs mt-2">{error}</p>}
           <div className="flex justify-end mt-3">
             <button
-              type="submit"
-              disabled={loading || !content.trim()}
-              className="bg-indigo-600 text-white text-sm px-5 py-2 rounded-full hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              type="submit" disabled={loading || !content.trim()}
+              className="text-sm px-5 py-2 rounded-full font-medium text-white bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {loading ? '送信中...' : 'コメントする'}
             </button>
           </div>
         </form>
       ) : (
-        <div className="bg-gray-50 rounded-xl p-4 text-center text-sm text-gray-500">
+        <div className="border border-zinc-800 rounded-xl p-4 text-center text-sm text-zinc-600">
           コメントするには{' '}
-          <a href="/login" className="text-indigo-600 hover:underline font-medium">ログイン</a>
+          <a href="/login" className="text-violet-400 hover:text-violet-300 font-medium">ログイン</a>
           {' '}が必要です
         </div>
       )}

@@ -14,11 +14,9 @@ export default function Header() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
     });
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
     });
-
     return () => subscription.unsubscribe();
   }, []);
 
@@ -29,26 +27,29 @@ export default function Header() {
   };
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-10">
-      <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href="/" className="text-2xl font-bold text-indigo-600 hover:text-indigo-700">
-          📍 SpotShare
+    <header className="sticky top-0 z-50 border-b border-white/5 bg-zinc-950/80 backdrop-blur-xl">
+      <div className="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
+        <Link href="/" className="flex items-center gap-2 group">
+          <span className="text-xl">📍</span>
+          <span className="text-lg font-bold bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">
+            SpotShare
+          </span>
         </Link>
         <div className="flex items-center gap-3">
           {user ? (
             <>
-              <span className="text-sm text-gray-500 hidden sm:block truncate max-w-[180px]">
+              <span className="text-sm text-zinc-500 hidden sm:block truncate max-w-[180px]">
                 {user.email}
               </span>
               <Link
                 href="/spots/new"
-                className="bg-indigo-600 text-white text-sm px-4 py-2 rounded-full hover:bg-indigo-700 transition-colors"
+                className="text-sm px-4 py-2 rounded-full font-medium bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white transition-all shadow-lg shadow-violet-900/30"
               >
                 + 投稿する
               </Link>
               <button
                 onClick={handleLogout}
-                className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
+                className="text-sm text-zinc-500 hover:text-zinc-300 transition-colors"
               >
                 ログアウト
               </button>
@@ -56,7 +57,7 @@ export default function Header() {
           ) : (
             <Link
               href="/login"
-              className="bg-indigo-600 text-white text-sm px-4 py-2 rounded-full hover:bg-indigo-700 transition-colors"
+              className="text-sm px-4 py-2 rounded-full font-medium bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white transition-all shadow-lg shadow-violet-900/30"
             >
               ログイン
             </Link>
