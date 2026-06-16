@@ -69,7 +69,8 @@ export default function ReactionBar({ spotId, commentId }: Props) {
       {EMOJIS.map((emoji) => {
         const count = counts[emoji];
         const isActive = myEmoji === emoji;
-        if (count === 0 && hasAny) return null;
+        // ログイン中は全emoji表示、未ログインはreactionがあるものだけ表示
+        if (!userId && count === 0) return null;
         return (
           <button
             key={emoji}
